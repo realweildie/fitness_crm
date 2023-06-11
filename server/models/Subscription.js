@@ -18,6 +18,7 @@ const SubscriptionSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  is_old: Boolean,
 });
 
 export default mongoose.model("Subscription", SubscriptionSchema);

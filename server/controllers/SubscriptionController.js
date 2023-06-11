@@ -1,5 +1,7 @@
-import SubscriptionModel from "../models/Subscription.js";
+import mongoose from "mongoose";
 import { validationResult } from "express-validator";
+
+import SubscriptionModel from "../models/Subscription.js";
 
 export const add = async (req, res) => {
   const errors = validationResult(req);
@@ -14,6 +16,7 @@ export const add = async (req, res) => {
       duration: req.body.duration,
       trainings_quantity: req.body.trainings_quantity,
       price: req.body.price,
+      is_old: req.body.is_old || false,
     });
 
     const subscription = await subscriptionDoc.save();
@@ -34,4 +37,16 @@ export const add = async (req, res) => {
       success: false,
     });
   }
+};
+
+export const edit = async (req, res) => {};
+
+export const getAll = async (req, res) => {
+  const filter = req.body.old === true ? null : { is_old: false };
+
+  const subscriptions = await SubscriptionModel.find(filter);
+
+  return subscriptions
+    ? res.json({ ...subscriptions })
+    : res.status(400).json({ success: false });
 };

@@ -5,4 +5,5 @@ export const subscriptionValidator = [
   body("duration").isNumeric(),
   body("trainings_quantity").isNumeric(),
   body("price").isNumeric(),
+  body("is_old").isBoolean().optional(),
 ];

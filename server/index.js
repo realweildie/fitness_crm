@@ -1,17 +1,14 @@
 import express from "express";
 import mongoose from "mongoose";
 
-import { loginValidator, registerValidator } from "./validations/auth.js";
-import { subscriptionValidator } from "./validations/subscription.js";
-
 import checkAuth from "./utils/checkAuth.js";
 import checkRoot from "./utils/checkRoot.js";
 
 import {
-  ClientController,
-  UserController,
-  SubscriptionController,
-} from "./controllers/index.js";
+  subscriptionRouter,
+  clientRouter,
+  userRouter,
+} from "./routes/index.js";
 
 const app = express();
 
@@ -26,18 +23,9 @@ mongoose
 
 app.use(express.json());
 
-app.post("/client/register", registerValidator, ClientController.register);
-app.get("/client/profile", checkAuth, ClientController.getProfile);
-
-app.post("/login", loginValidator, UserController.login);
-
-app.post(
-  "/subscription/add",
-  checkAuth,
-  checkRoot,
-  subscriptionValidator,
-  SubscriptionController.add
-);
+app.use("/subscription", checkAuth, checkRoot, subscriptionRouter);
+app.use("/client", checkAuth, clientRouter);
+app.use("/user", userRouter);
 
 app.listen(3333, (err) => {
   if (err) {
