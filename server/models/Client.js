@@ -1,9 +1,21 @@
 import mongoose from "mongoose";
 
+const ActiveSubscripionSchema = new mongoose.Schema({
+  startDay: {
+    type: Number,
+    required: true,
+  },
+  trainigsLeft: {
+    type: Number,
+    required: true,
+  },
+});
+
 const ClientSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
       required: true,
     },
     cardNumber: {
@@ -11,26 +23,13 @@ const ClientSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    phoneNumber: {
-      type: Number,
-      required: true,
-      unique: true,
+    subscriptionType: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Subscription",
     },
-    barcode: {
-      type: Number,
-      unique: true,
+    activeSubscription: {
+      type: ActiveSubscripionSchema,
     },
-    passwordHash: {
-      type: String,
-      required: true,
-    },
-    subscription: {
-      // link to subscription
-    },
-    startDay: {
-      //
-    },
-    trainingsLeft: Number,
     subscriptionHistory: {
       // type of subscripion[]
     },
