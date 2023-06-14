@@ -1,15 +1,20 @@
 import mongoose from "mongoose";
 
-const ActiveSubscripionSchema = new mongoose.Schema({
-  startDay: {
-    type: Number,
-    required: true,
+const ActiveSubscripionSchema = new mongoose.Schema(
+  {
+    startDay: {
+      type: Number,
+      required: true,
+    },
+    trainigsLeft: {
+      type: Number,
+      required: true,
+    },
   },
-  trainigsLeft: {
-    type: Number,
-    required: true,
-  },
-});
+  {
+    timestamps: true,
+  }
+);
 
 const ClientSchema = new mongoose.Schema(
   {

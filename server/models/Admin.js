@@ -1,5 +1,17 @@
 import mongoose from "mongoose";
 
+const ActionSchema = new mongoose.Schema(
+  {
+    body: {
+      type: String,
+      required: true,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
 const AdminSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
@@ -8,7 +20,7 @@ const AdminSchema = new mongoose.Schema({
   },
   actions: [
     {
-      type: String,
+      type: ActionSchema,
     },
   ],
 });

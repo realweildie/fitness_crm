@@ -1,10 +1,11 @@
 import ClientModel from "../models/Client.js";
 import UserModel from "../models/User.js";
+import SubscriptionModel from "../models/Subscription.js";
 
 import { validationResult } from "express-validator";
 import { genPassword } from "../utils/genPassword.js";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import addAdminAction from "../utils/addAdminAction.js";
 
 export const register = async (req, res) => {
   try {
@@ -77,6 +78,76 @@ export const register = async (req, res) => {
       success: false,
       error: "Unable to register client",
     });
+  }
+};
+
+export const setSubscription = async (req, res) => {
+  try {
+    const subscription = await SubscriptionModel.findById(
+      req.body.subscriptionTypeId
+    );
+
+    if (!subscription) {
+      return res.json({ success: false, message: "No subscription like this" });
+    }
+
+    const updatedClient = await ClientModel.findByIdAndUpdate(
+      { _id: req.body.clientId },
+      {
+        $set: {
+          subscriptionType: req.body.subscriptionTypeId,
+          activeSubscription: {
+            startDay: Date.now(),
+            trainigsLeft: subscription.trainings_quantity,
+          },
+        },
+      }
+    );
+
+    if (!updatedClient) {
+      return res.json({ success: false, message: "Something went wrong" });
+    }
+
+    const user = await UserModel.findById(updatedClient.user);
+    const action = `Установлен абонемент ${subscription.title} для ${user.name}`;
+
+    addAdminAction(req.userId, action);
+
+    return res.json({ success: true });
+  } catch (error) {
+    console.log(error);
+    return res.json({ success: false, message: "Error" });
+  }
+};
+
+export const setTrainingsQuantity = async (req, res) => {
+  try {
+    const client = await ClientModel.findOne({ user: req.body.clientId });
+
+    const updatedClient = await ClientModel.findByIdAndUpdate(
+      { _id: req.body.clientId },
+      {
+        $set: {
+          activeSubscription: {
+            trainigsLeft: req.body.trainigsQuantity,
+          },
+        },
+      }
+    );
+
+    if (!updatedClient) {
+      return res.json({ success: false, message: "Something went wrong" });
+    }
+
+    const user = await UserModel.findById(updatedClient.user);
+    const oldTrainingsQuantity = client?.activeSubscription?.trainigsLeft || 0;
+    const action = `Установлено количество занятий ${updatedClient.activeSubscription.trainigsLeft} вместо ${oldTrainingsQuantity} для ${user.name}`;
+
+    addAdminAction(req.userId, action);
+
+    return res.json({ success: true });
+  } catch (error) {
+    console.log(error);
   }
 };
 
