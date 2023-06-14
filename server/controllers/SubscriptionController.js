@@ -39,14 +39,62 @@ export const add = async (req, res) => {
   }
 };
 
-export const edit = async (req, res) => {};
+export const edit = async (req, res) => {
+  try {
+    const updatedSubscription = await SubscriptionModel.findOneAndUpdate(
+      { _id: req.body.id },
+      {
+        $set: {
+          title: req.body.title,
+          duration: req.body.duration,
+          trainings_quantity: req.body.trainings_quantity,
+          price: req.body.price,
+          is_old: req.body.is_old,
+        },
+      }
+    );
+
+    if (!updatedSubscription) {
+      return res.status(400).json({
+        success: false,
+        message: "the same name or something else",
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({
+      success: false,
+      message: "editing error",
+    });
+  }
+
+  return res.json({ success: true });
+};
+
+export const getOne = async (req, res) => {
+  try {
+    const subscription = await SubscriptionModel.findOne({ _id: req.body.id });
+
+    return subscription
+      ? res.json({ ...subscription._doc })
+      : res.status(400).json({ success: false });
+  } catch (error) {
+    console.log(error);
+    return res.json({ success: false });
+  }
+};
 
 export const getAll = async (req, res) => {
   const filter = req.body.old === true ? null : { is_old: false };
 
-  const subscriptions = await SubscriptionModel.find(filter);
+  try {
+    const subscriptions = await SubscriptionModel.find(filter);
 
-  return subscriptions
-    ? res.json({ ...subscriptions })
-    : res.status(400).json({ success: false });
+    return subscriptions
+      ? res.json({ ...subscriptions })
+      : res.status(400).json({ success: false });
+  } catch (error) {
+    console.log(error);
+    return res.json({ success: false });
+  }
 };

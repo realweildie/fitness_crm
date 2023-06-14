@@ -4,10 +4,14 @@ import { subscriptionValidator } from "../validations/subscription.js";
 
 export const subscriptionRouter = express.Router();
 
-subscriptionRouter.post(
-  "/add",
+subscriptionRouter.post("/", subscriptionValidator, SubscriptionController.add);
+
+subscriptionRouter.patch(
+  "/",
   subscriptionValidator,
-  SubscriptionController.add
+  SubscriptionController.edit
 );
+
+subscriptionRouter.get("/", SubscriptionController.getOne);
 
 subscriptionRouter.get("/getAll", SubscriptionController.getAll);
