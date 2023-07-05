@@ -13,4 +13,12 @@ export default class PostService {
     });
     return data;
   }
+  static async getOneSubscriptions(id) {
+    const { data } = await baseInstance.get("/subscription/getOne", {
+      params: {
+        id,
+      },
+    });
+    return data;
+  }
 }

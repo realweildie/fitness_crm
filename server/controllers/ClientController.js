@@ -91,12 +91,17 @@ export const setSubscription = async (req, res) => {
       return res.json({ success: false, message: "No subscription like this" });
     }
 
+    let moreDaysFromNow = new Date();
+    moreDaysFromNow.setDate(moreDaysFromNow.getDate() + subscription.duration);
+    console.log(subscription.duration, moreDaysFromNow);
+
     const updatedClient = await ClientModel.findByIdAndUpdate(
       { _id: req.body.clientId },
       {
         $set: {
           activeSubscription: {
             startDay: Date.now(),
+            expirationDate: Date.parse(moreDaysFromNow),
             type: req.body.subscriptionTypeId,
             trainigsLeft: subscription.trainings_quantity,
             duration: subscription.duration,
@@ -155,17 +160,22 @@ export const setTrainingsQuantity = async (req, res) => {
 // TODO: edit it with no toke decription
 export const getProfile = async (req, res) => {
   try {
-    const user = await ClientModel.findOne({
-      user: req.userId,
+    const client = await ClientModel.findOne({
+      cardNumber: req.query.cardNumber,
     });
+    const user = await UserModel.findById(client.user);
 
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-      });
-    }
+    let result = {
+      name: user.name,
+      phoneNumber: user.phoneNumber,
+      cardNumber: client.cardNumber,
+      startDate: client?.activeSubscription?.startDay,
+      trainingsLeft: client?.activeSubscription?.trainigsLeft,
+      subscription: client?.activeSubscription?.type,
+      expirationDate: client?.activeSubscription?.expirationDate,
+    };
 
-    return res.json({ ...user._doc });
+    return res.json(result);
   } catch (error) {
     console.log(error);
     res.status(400).json({ success: false });
@@ -174,8 +184,8 @@ export const getProfile = async (req, res) => {
 
 export const getAllClients = async (req, res) => {
   try {
-    const chunk = req.body.chunkNumber || 0;
-    const chunkSize = req.body.chunkSize || 100;
+    const chunk = req.query.chunkNumber || 0;
+    const chunkSize = req.query.chunkSize || 100;
 
     const clients = await ClientModel.find()
       .skip(chunk * chunkSize)
@@ -192,16 +202,8 @@ export const getAllClients = async (req, res) => {
           startDate: client?.activeSubscription?.startDay,
           trainingsLeft: client?.activeSubscription?.trainigsLeft,
           subscription: client?.activeSubscription?.type,
+          expirationDate: client?.activeSubscription?.expirationDate,
         };
-
-        let expirationDate = new Date(client?.activeSubscription?.startDay);
-        expirationDate.setDate(
-          expirationDate.getDate() + client?.activeSubscription?.duration
-        );
-
-        if (!isNaN(expirationDate)) {
-          result["expirationDate"] = Date.parse(expirationDate);
-        }
 
         return result;
       })

@@ -13,7 +13,7 @@ interface DataType {
   phoneNumber: string;
   subscription: string | null;
   trainingsLeft: string | null;
-  expirationDate: Date | null;
+  expirationDate: number | null;
 }
 
 const { Text } = Typography;
@@ -28,6 +28,7 @@ const columns: ColumnsType<DataType> = [
     title: "Фамилия Имя Отчество",
     dataIndex: "name",
     key: "name",
+    render: (name, data) => <a onClick={() => console.log(data)}>{name}</a>,
   },
   {
     title: "Номер телефона",
@@ -38,7 +39,11 @@ const columns: ColumnsType<DataType> = [
     title: "Абонемент",
     key: "subscriptionTitle",
     dataIndex: "subscriptionTitle",
-    render: (text) => <Tag>{text}</Tag>,
+    render: (text, data) => (
+      <Tag color={data?.expirationDate > Date.now() ? "success" : "error"}>
+        {text}
+      </Tag>
+    ),
   },
   {
     title: "Остаток",
@@ -59,10 +64,11 @@ const columns: ColumnsType<DataType> = [
 
 export const ClientTable = () => {
   const isFirstRender = React.useRef(true);
+  const [clientOnEdit, setClientOnEdit] = React.useState();
   const [clients, setClients] = React.useState([]);
   const [subscriptions, setSubscriptions] = React.useState([]);
 
-  const fetching = React.useCallback(async () => {
+  const fetchingClients = React.useCallback(async () => {
     const subs = await PostService.getAllSubscriptions(true);
     setSubscriptions(subs);
 
@@ -80,10 +86,13 @@ export const ClientTable = () => {
 
     setClients(mapedRes);
   }, []);
+  const fetchingCurrentClient = React.useCallback(async () => {}, []);
 
   const [fetchProfiles, isProfilesLoading, profilesError] =
-    useFetching(fetching);
+    useFetching(fetchingClients);
 
+  // calls twice because of new react >= 18.00 if we don't use isFirstRender
+  // read https://stackoverflow.com/questions/60618844/react-hooks-useeffect-is-called-twice-even-if-an-empty-array-is-used-as-an-ar
   React.useEffect(() => {
     if (isFirstRender.current) {
       fetchProfiles();
@@ -92,6 +101,11 @@ export const ClientTable = () => {
   }, []);
 
   return (
-    <Table loading={isProfilesLoading} columns={columns} dataSource={clients} />
+    <Table
+      loading={isProfilesLoading}
+      columns={columns}
+      dataSource={clients}
+      bordered
+    />
   );
 };

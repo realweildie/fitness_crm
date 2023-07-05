@@ -6,6 +6,10 @@ const ActiveSubscripionSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    expirationDate: {
+      type: Number,
+      required: true,
+    },
     trainigsLeft: {
       type: Number,
       required: true,

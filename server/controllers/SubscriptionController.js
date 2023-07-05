@@ -73,7 +73,7 @@ export const edit = async (req, res) => {
 
 export const getOne = async (req, res) => {
   try {
-    const subscription = await SubscriptionModel.findOne({ _id: req.body.id });
+    const subscription = await SubscriptionModel.findOne({ _id: req.query.id });
 
     return subscription
       ? res.json({ ...subscription._doc })
