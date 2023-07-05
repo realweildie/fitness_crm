@@ -95,10 +95,11 @@ export const setSubscription = async (req, res) => {
       { _id: req.body.clientId },
       {
         $set: {
-          subscriptionType: req.body.subscriptionTypeId,
           activeSubscription: {
             startDay: Date.now(),
+            type: req.body.subscriptionTypeId,
             trainigsLeft: subscription.trainings_quantity,
+            duration: subscription.duration,
           },
         },
       }
@@ -151,6 +152,7 @@ export const setTrainingsQuantity = async (req, res) => {
   }
 };
 
+// TODO: edit it with no toke decription
 export const getProfile = async (req, res) => {
   try {
     const user = await ClientModel.findOne({
@@ -167,5 +169,47 @@ export const getProfile = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(400).json({ success: false });
+  }
+};
+
+export const getAllClients = async (req, res) => {
+  try {
+    const chunk = req.body.chunkNumber || 0;
+    const chunkSize = req.body.chunkSize || 100;
+
+    const clients = await ClientModel.find()
+      .skip(chunk * chunkSize)
+      .limit(chunkSize);
+
+    const fullUsersInfo = await Promise.all(
+      clients.map(async (client) => {
+        const user = await UserModel.findById(client.user);
+
+        let result = {
+          name: user.name,
+          phoneNumber: user.phoneNumber,
+          cardNumber: client.cardNumber,
+          startDate: client?.activeSubscription?.startDay,
+          trainingsLeft: client?.activeSubscription?.trainigsLeft,
+          subscription: client?.activeSubscription?.type,
+        };
+
+        let expirationDate = new Date(client?.activeSubscription?.startDay);
+        expirationDate.setDate(
+          expirationDate.getDate() + client?.activeSubscription?.duration
+        );
+
+        if (!isNaN(expirationDate)) {
+          result["expirationDate"] = Date.parse(expirationDate);
+        }
+
+        return result;
+      })
+    );
+
+    return res.json(fullUsersInfo);
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({ success: false });
   }
 };

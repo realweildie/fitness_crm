@@ -85,13 +85,13 @@ export const getOne = async (req, res) => {
 };
 
 export const getAll = async (req, res) => {
-  const filter = req.body.old === true ? null : { is_old: false };
+  const filter = req.query.old ? null : { is_old: false };
 
   try {
     const subscriptions = await SubscriptionModel.find(filter);
 
     return subscriptions
-      ? res.json({ ...subscriptions })
+      ? res.json([...subscriptions])
       : res.status(400).json({ success: false });
   } catch (error) {
     console.log(error);

@@ -10,12 +10,12 @@ export default (req, res, next) => {
 
       next();
     } catch (error) {
-      return res.status(403).json({
+      return res.status(401).json({
         success: false,
         message: "Access error",
       });
     }
   } else {
-    return res.status(403).json({ success: false, message: "No token" });
+    return res.status(401).json({ success: false, message: "No token" });
   }
 };

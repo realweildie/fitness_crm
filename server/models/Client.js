@@ -10,6 +10,14 @@ const ActiveSubscripionSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    type: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Subscription",
+    },
+    duration: {
+      type: Number,
+      required: true,
+    },
   },
   {
     timestamps: true,
@@ -27,10 +35,6 @@ const ClientSchema = new mongoose.Schema(
       type: Number,
       required: true,
       unique: true,
-    },
-    subscriptionType: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Subscription",
     },
     activeSubscription: {
       type: ActiveSubscripionSchema,

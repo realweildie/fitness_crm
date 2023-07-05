@@ -32,3 +32,10 @@ clientRouter.post(
 );
 
 clientRouter.get("/profile", ClientController.getProfile);
+
+clientRouter.get(
+  "/profiles",
+  checkAuth,
+  checkRoot,
+  ClientController.getAllClients
+);

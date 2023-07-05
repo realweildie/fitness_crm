@@ -1,5 +1,6 @@
 import express from "express";
 import mongoose from "mongoose";
+import cors from "cors";
 
 import checkAuth from "./utils/checkAuth.js";
 import checkRoot from "./utils/checkRoot.js";
@@ -22,6 +23,7 @@ mongoose
   .catch((err) => console.log(err));
 
 app.use(express.json());
+app.use(cors());
 
 app.use("/subscription", checkAuth, checkRoot, subscriptionRouter);
 app.use("/client", checkAuth, clientRouter);

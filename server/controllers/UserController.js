@@ -1,6 +1,7 @@
 import UserModel from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import getUserRole from "../utils/getUserRole.js";
 
 export const login = async (req, res) => {
   try {
@@ -9,7 +10,7 @@ export const login = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).json({
+      return res.json({
         success: false,
         message: "User not found",
       });
@@ -21,7 +22,7 @@ export const login = async (req, res) => {
     );
 
     if (!isPassValid) {
-      return res.status(404).json({ status: false, message: "Wrong data" });
+      return res.json({ status: false, message: "Wrong data" });
     }
 
     const token = jwt.sign(
@@ -35,11 +36,13 @@ export const login = async (req, res) => {
     );
 
     const { passwordHash, ...userData } = user._doc;
+    const isAdmin = (await getUserRole(user._id)) === "admin";
 
     return res.json({
       success: true,
       user: {
         ...userData,
+        isAdmin,
         token,
       },
     });
